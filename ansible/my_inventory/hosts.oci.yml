@@ -1,0 +1,11 @@
+plugin: oracle.oci.oci
+
+regions:
+  - ca-toronto-1
+
+filters:
+- defined_tags: { "project": { "name": "simple-app" } }
+
+compartments:
+  - compartment_ocid: "ocid1.compartment.oc1..aaaaaaaaabduxqfxc3tr5eghmlhfgrajiauf2b7fbwqbmu3fn6kq5pn3ywtq"
+    fetch_hosts_from_subcompartments: false

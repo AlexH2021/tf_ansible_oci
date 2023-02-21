@@ -1,0 +1,50 @@
+- hosts: all
+  become: yes
+  vars:
+    server_name: "thealexlab.com"
+    document_root: "/var/www/html"
+    app_root: "main_site"
+  tasks:
+    - name: check oci instances
+      import_tasks:
+        file: check_compute.yml
+    
+    - name: install latest version of nginx
+      apt:
+        name: nginx
+        state: latest
+        update_cache: yes
+    
+    - name: Copy website files to the server's doc root
+      copy:
+        src: "{{ app_root }}"
+        dest: "{{ document_root }}"
+        mode: preserve
+
+    - name: Apply Nginx template
+      template:
+        src: "files/nginx.conf.j2"
+        dest: "/etc/nginx/sites-available/default"
+      notify: Restart Nginx
+
+    - name: Enable new site
+      file:
+        src: "/etc/nginx/site-available/default"
+        dest: "/etc/nginx/site-enabled/default"
+        state: link
+      notify: Restart Nginx
+
+    - name: Allow all access to tcp port 80
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      with_items:
+        - "80"
+        - "443"
+    
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted 

@@ -1,0 +1,24 @@
+server {
+  listen 443 default_server;
+  listen [::]:443 default_server;
+
+  root {{ document_root }}/{{ app_root }};
+  index index.html index.htm;
+
+  server_name www.{{ server_name }} {{ server_name }};
+
+  ssl on;
+  ssl_certificate /etc/letsencrypt/live/jgefroh.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/jgefroh.com/privkey.pem;
+  
+  location / {
+    default_type "text/html";
+    try_files $uri.html $uri $uri/ =404;
+  }
+}
+
+server {
+  listen 0.0.0.0:80;
+  server_name www.{{ server_name }} {{ server_name }};
+  rewrite ^ https://$host$request_uri? permanent;
+}
